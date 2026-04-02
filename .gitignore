@@ -19,6 +19,8 @@ ENV/
 *.pt
 *.pth
 *.weights
+# Keep the weights directory tracked but not its contents
+!weights/.gitkeep
 
 # Training outputs
 runs/
