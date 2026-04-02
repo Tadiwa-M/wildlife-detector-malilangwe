@@ -1,0 +1,12 @@
+path: C:\Users\Tmata\Desktop\Wildlife detection-Malilangwe\Wildlife Detector\WAID\WAID
+train: images/train
+val: images/valid
+test: images/test
+nc: 6
+names:
+- sheep
+- cattle
+- seal
+- camelus
+- kiang
+- zebra

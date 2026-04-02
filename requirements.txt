@@ -1,0 +1,11 @@
+# Wildlife Detector — Malilangwe Trust
+# Core dependencies
+
+ultralytics>=8.3.0      # YOLOv11 + BoT-SORT
+opencv-python>=4.8.0
+numpy>=1.24.0
+pyyaml>=6.0
+lap>=0.4.0              # Linear assignment for BoT-SORT
+
+# Development / testing
+pytest>=7.4.0

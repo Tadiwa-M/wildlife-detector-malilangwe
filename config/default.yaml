@@ -1,0 +1,136 @@
+# =============================================================================
+# Wildlife Detector — Malilangwe Trust
+# Master configuration file
+# =============================================================================
+# All paths are relative to the project root unless marked absolute.
+# Override per-environment with config/local.yaml (git-ignored).
+
+# -- Project metadata --------------------------------------------------------
+project:
+  name: "Malilangwe Wildlife Detector"
+  version: "0.1.0"
+  description: >
+    Aerial drone wildlife detection and tracking for the Malilangwe Trust,
+    Zimbabwe. Uses YOLOv11 fine-tuned on the WAID dataset with BoT-SORT
+    multi-object tracking.
+
+# -- Paths -------------------------------------------------------------------
+paths:
+  # WAID dataset root (contains images/ and labels/ with train/valid/test splits)
+  dataset_root: "WAID/WAID"
+  # Directory for trained model weights
+  weights_dir: "weights"
+  # Default model checkpoint for inference
+  default_model: "weights/yolo11n.pt"
+  # Where inference results (images/videos) are saved
+  output_dir: "outputs"
+  # Temporary / scratch directory
+  temp_dir: "tmp"
+
+# -- Dataset -----------------------------------------------------------------
+# WAID (Wildlife Aerial Images from Drone)
+# Source: https://github.com/xiaohuicui/WAID
+# Classes defined in WAID/WAID/classes.txt — order matches label indices 0-5.
+dataset:
+  name: "WAID"
+  num_classes: 6
+  class_names:
+    - "sheep"
+    - "cattle"
+    - "seal"
+    - "camelus"
+    - "kiang"
+    - "zebra"
+  # Dataset is pre-split into train/valid/test subdirectories
+  split_dirs:
+    train: "train"
+    val:   "valid"
+    test:  "test"
+  seed: 42
+
+# -- Detection ---------------------------------------------------------------
+detection:
+  # Model variant: yolo11n / yolo11s / yolo11m / yolo11l / yolo11x
+  model_variant: "yolo11n"
+  # Confidence threshold for detections
+  confidence_threshold: 0.25
+  # IoU threshold for NMS
+  iou_threshold: 0.45
+  # Max detections per image
+  max_detections: 100
+  # Input image size (pixels, square)
+  image_size: 640
+  # Device: "cpu", "cuda", "cuda:0", "mps" (Apple Silicon)
+  device: "cpu"
+  # Half-precision inference (requires GPU)
+  half_precision: false
+  # Augment inference (TTA — test-time augmentation)
+  augment: false
+
+# -- Training ----------------------------------------------------------------
+training:
+  epochs: 100
+  batch_size: 16
+  image_size: 640
+  optimizer: "AdamW"
+  learning_rate: 0.001
+  weight_decay: 0.0005
+  patience: 15          # Early-stopping patience (epochs)
+  # Resume from checkpoint (path or false)
+  resume: false
+  # Augmentation toggles
+  augmentation:
+    hsv_h: 0.015
+    hsv_s: 0.7
+    hsv_v: 0.4
+    flipud: 0.5          # Aerial images benefit from vertical flip
+    fliplr: 0.5
+    mosaic: 1.0
+    mixup: 0.1
+    scale: 0.5
+
+# -- Tracking (BoT-SORT) ----------------------------------------------------
+tracking:
+  tracker: "botsort"
+  # Config file shipped with ultralytics (or custom path)
+  tracker_config: "botsort.yaml"
+  # Re-identification model (set null to disable ReID)
+  reid_model: null
+  # Track buffer — frames to keep lost tracks alive
+  track_buffer: 30
+  # Minimum track length to report (frames)
+  min_track_length: 3
+
+# -- Visualization -----------------------------------------------------------
+visualization:
+  # Bounding-box line thickness (pixels)
+  line_thickness: 2
+  # Font scale for labels
+  font_scale: 0.6
+  # Show confidence scores on boxes
+  show_confidence: true
+  # Show track IDs (only meaningful in video/tracking mode)
+  show_track_id: true
+  # Colour palette per class (BGR format for OpenCV)
+  class_colors:
+    sheep:    [0, 200, 0]        # green
+    cattle:   [0, 165, 255]      # orange
+    seal:     [255, 200, 0]      # cyan-blue
+    camelus:  [0, 215, 255]      # gold
+    kiang:    [180, 105, 255]    # pink
+    zebra:    [255, 255, 255]    # white
+
+# -- Logging -----------------------------------------------------------------
+logging:
+  level: "INFO"           # DEBUG | INFO | WARNING | ERROR
+  log_to_file: true
+  log_dir: "logs"
+
+# -- Edge deployment (future) ------------------------------------------------
+edge:
+  # Target: "jetson_nano" | "jetson_orin" | "raspberry_pi_5" | "desktop"
+  target_device: "desktop"
+  # Export format: "torchscript" | "onnx" | "engine" (TensorRT)
+  export_format: "onnx"
+  # INT8 quantization (requires calibration dataset)
+  quantize: false
