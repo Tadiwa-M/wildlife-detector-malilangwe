@@ -23,20 +23,32 @@ A pretrained COCO model sees aerial elephants and calls them "sheep" or "birds" 
 ## Project Structure
 
 ```
-Wildlife Detector/
+wildlife-detector-malilangwe/
 ├── config/
-│   ├── default.yaml          # Main configuration
-│   └── waid.yaml             # Dataset config for Ultralytics
+│   └── default.yaml          # Master configuration (paths, model, training, tracking)
+├── data/
+│   └── waid.yaml             # Ultralytics dataset YAML for training
 ├── src/
+│   ├── config.py             # YAML config loader with dot-access & deep merge
 │   ├── detection/
-│   │   └── detector.py       # WildlifeDetector class
-│   ├── tracking/             # BoT-SORT integration (planned)
-│   ├── data/                 # Dataset loading & preprocessing
-│   └── utils/                # Visualization, logging, helpers
+│   │   └── detector.py       # WildlifeDetector class (YOLOv11 wrapper)
+│   ├── tracking/
+│   │   └── tracker.py        # BoT-SORT multi-object tracking
+│   ├── data/
+│   │   └── dataset.py        # WAID dataset validation & YAML generation
+│   └── utils/
+│       ├── logging_setup.py  # Structured logging (file + stdout)
+│       └── visualization.py  # Bounding box & summary overlay drawing
 ├── scripts/
-│   └── detect.py             # CLI detection runner
-├── tests/                    # Unit tests
-├── WAID/                     # Dataset (not tracked in git)
+│   ├── detect.py             # CLI detection runner
+│   ├── train.py              # Fine-tuning on WAID dataset
+│   └── evaluate.py           # Model evaluation & metrics
+├── tests/
+│   ├── test_config.py        # Config system tests
+│   └── test_detection.py     # Detection class tests
+├── WAID/                     # Dataset labels (images not tracked — too large)
+├── requirements.txt
+├── pyproject.toml
 └── README.md
 ```
 
@@ -46,6 +58,7 @@ Wildlife Detector/
 
 - Python 3.10+
 - pip
+- GPU recommended for training (use Google Colab if needed)
 
 ### Installation
 
@@ -59,59 +72,89 @@ pip install -r requirements.txt
 
 ```bash
 # On a single image
-python scripts/detect.py path/to/image.jpg
+python scripts/detect.py --source path/to/image.jpg
 
 # On a folder of images
-python scripts/detect.py path/to/folder/
+python scripts/detect.py --source path/to/folder/
 
 # With custom confidence threshold
-python scripts/detect.py path/to/image.jpg --conf 0.15
+python scripts/detect.py --source path/to/image.jpg --conf 0.15
 
-# With specific weights
-python scripts/detect.py path/to/image.jpg --weights runs/train/best.pt
+# Display results in a window
+python scripts/detect.py --source path/to/image.jpg --show
+
+# Save annotated results
+python scripts/detect.py --source path/to/image.jpg --save
 ```
 
 ### Train on WAID Dataset
 
 ```bash
-# Download the dataset
+# Download the dataset images (labels already included)
 git clone https://github.com/xiaohuicui/WAID.git
 
-# Train (GPU recommended — use Google Colab)
-python scripts/train.py --config config/default.yaml
+# Validate dataset integrity
+python scripts/train.py --validate-only
+
+# Train (GPU recommended)
+python scripts/train.py
+
+# Resume from checkpoint
+python scripts/train.py --resume runs/train/weights/last.pt
+
+# Custom config
+python scripts/train.py --config config/custom.yaml
+```
+
+### Evaluate a Model
+
+```bash
+# Evaluate on test split
+python scripts/evaluate.py --weights weights/best.pt
+
+# Evaluate on validation split
+python scripts/evaluate.py --weights weights/best.pt --split val
+
+# Save evaluation plots
+python scripts/evaluate.py --weights weights/best.pt --save-plots
 ```
 
 ## Dataset
 
-**WAID (Wildlife Aerial Images from Drone)** — 14,375 UAV aerial images across 6 species:
+**WAID (Wildlife Aerial Images from Drone)** — 14,366 UAV aerial images across 6 species:
 
-| Class | Species |
-|-------|---------|
-| 0 | Sheep |
-| 1 | Cattle |
-| 2 | Seal |
-| 3 | Camelus |
-| 4 | Kiang |
-| 5 | Zebra |
+| Class | Species | Train instances |
+|-------|---------|----------------|
+| 0 | Sheep | 91,496 |
+| 1 | Cattle | 44,245 |
+| 2 | Seal | 15,762 |
+| 3 | Camelus | 4,676 |
+| 4 | Kiang | 3,312 |
+| 5 | Zebra | 3,792 |
+
+> **Note:** There is significant class imbalance (sheep has 28x more instances than kiang). The training config includes class weighting to mitigate this.
 
 Source: [WAID GitHub](https://github.com/xiaohuicui/WAID) · [Paper](https://www.mdpi.com/2076-3417/13/18/10397)
 
 ## Architecture
 
 - **Detection:** YOLOv11 (Ultralytics) — real-time object detection optimised for small aerial targets
-- **Tracking:** BoT-SORT — multi-object tracking for video sequences (planned)
+- **Tracking:** BoT-SORT — multi-object tracking for video sequences
 - **Config:** YAML-driven — no hardcoded paths or hyperparameters
-- **Design:** Modular, single-responsibility modules, type-hinted, production-aware
+- **Design:** Modular, single-responsibility modules, type-hinted
 
 ## Roadmap
 
 - [x] Project structure & config system
 - [x] Detection module with config-driven inference
+- [x] CLI scripts (detect, train, evaluate)
+- [x] Dataset validation & statistics tooling
+- [x] Visualization utilities
+- [x] BoT-SORT tracking interface
 - [ ] Fine-tune YOLOv11 on WAID dataset
-- [ ] Evaluation & metrics module
-- [ ] BoT-SORT tracking integration for video
+- [ ] Evaluation & metrics benchmarking
 - [ ] Edge deployment testing (Raspberry Pi / Jetson Nano)
-- [ ] Malilangwe-specific species classes
+- [ ] Malilangwe-specific species classes (elephant, buffalo, lion, etc.)
 
 ## About Malilangwe
 
@@ -120,7 +163,6 @@ The [Malilangwe Trust](https://www.malilangwe.org/) manages the Malilangwe Wildl
 ## References
 
 - [WAID: A Large-Scale Dataset for Wildlife Detection with Drones](https://www.mdpi.com/2076-3417/13/18/10397) (Cui et al., 2023)
-- [YOLOv11-Lite: Wildlife Detection from Drone Images](https://www.frontiersin.org/journals/artificial-intelligence/articles/10.3389/frai.2026.1777913/full) (2026)
 - [Ultralytics YOLOv11 Documentation](https://docs.ultralytics.com/)
 
 ## License

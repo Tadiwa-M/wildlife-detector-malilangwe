@@ -78,6 +78,16 @@ training:
   patience: 15          # Early-stopping patience (epochs)
   # Resume from checkpoint (path or false)
   resume: false
+  # Class weighting — addresses severe imbalance in WAID dataset
+  # (sheep: 91k instances vs kiang: 3k). Higher weight = more focus.
+  # Set null to disable. Weights are inverse-frequency-based.
+  class_weights:
+    - 0.2    # sheep   (91,496 — overrepresented)
+    - 0.4    # cattle  (44,245)
+    - 1.0    # seal    (15,762)
+    - 3.0    # camelus  (4,676 — underrepresented)
+    - 4.0    # kiang    (3,312 — most underrepresented)
+    - 3.5    # zebra    (3,792 — underrepresented)
   # Augmentation toggles
   augmentation:
     hsv_h: 0.015

@@ -24,6 +24,9 @@ ENV/
 runs/
 wandb/
 
+# Logs
+logs/
+
 # Data
 *.jpg
 *.jpeg
