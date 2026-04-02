@@ -1,4 +1,5 @@
-path: C:\Users\Tmata\Desktop\Wildlife detection-Malilangwe\Wildlife Detector\WAID\WAID
+# Auto-generated — regenerate with: python -c "from src.config import load_config; from src.data.dataset import generate_dataset_yaml; generate_dataset_yaml(load_config())"
+path: WAID/WAID
 train: images/train
 val: images/valid
 test: images/test
