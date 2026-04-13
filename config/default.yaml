@@ -21,8 +21,7 @@ paths:
   # Directory for trained model weights
   weights_dir: "weights"
   # Default model checkpoint for inference.
-  # After fine-tuning, update this to: weights/waid_yolo11n_best.pt
-  default_model: "weights/yolo11n.pt"
+  default_model: "weights/best.pt"
   # Where inference results (images/videos) are saved
   output_dir: "outputs"
   # Temporary / scratch directory
