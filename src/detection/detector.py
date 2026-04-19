@@ -85,11 +85,22 @@ class Detector:
         self._model_path = Path(
             model_path or cfg.paths.default_model
         )
+        # If weights don't exist locally, check if it's a known ultralytics model
+        # name (e.g. "yolo11n.pt") that can be auto-downloaded.
         if not self._model_path.exists():
-            raise FileNotFoundError(
-                f"Model weights not found: {self._model_path}\n"
-                "Download a pretrained checkpoint or update paths.default_model in config."
-            )
+            stem = self._model_path.name
+            known_pretrained = stem.startswith("yolo") and stem.endswith(".pt")
+            if known_pretrained:
+                logger.info(
+                    "Weights not found locally — downloading pretrained %s ...", stem
+                )
+                self._model_path = Path(stem)  # let ultralytics handle download
+            else:
+                raise FileNotFoundError(
+                    f"Model weights not found: {self._model_path}\n"
+                    "Run fine-tuning first (python scripts/train.py) or download "
+                    "a pretrained checkpoint."
+                )
 
         # Store inference parameters from config
         self._conf = float(det_cfg.confidence_threshold)

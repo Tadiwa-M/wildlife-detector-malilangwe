@@ -20,8 +20,8 @@ paths:
   dataset_root: "WAID/WAID"
   # Directory for trained model weights
   weights_dir: "weights"
-  # Default model checkpoint for inference
-  default_model: "weights/yolo11n.pt"
+  # Default model checkpoint for inference.
+  default_model: "weights/best.pt"
   # Where inference results (images/videos) are saved
   output_dir: "outputs"
   # Temporary / scratch directory
