@@ -114,66 +114,45 @@ Update the mapping if the order differs.
 Pass to merge script as: --liege path/to/liege
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
- 4. WildlifeMapper (CVPR 2024) — LION, elephant, giraffe, zebra + 16 more
+ 4. WildlifeMapper — SKIP FOR V1 (access required)
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-20-species aerial dataset including lion, Masai giraffe, elephant, zebra.
-Key species for Prometheus: lion (only dataset with lion labels).
+The full dataset requires institutional access approval which is not yet
+granted. The 4TU download link is dead. Do NOT pass --wildlifemapper
+when running merge_datasets.py for v1 training.
 
-Download:
-  https://data.4tu.nl/articles/dataset/12713903/1
+GitHub: https://github.com/UCSB-VRL/WildlifeMapper
+  (request access here if you want to pursue lion/giraffe for v2)
 
-IMPORTANT: 20-class dataset. After downloading, check classes.txt and
-update ALL 20 class IDs in config/merged_classes.yaml under
-dataset_mappings.wildlifemapper. Currently only the first 6 are mapped —
-unmapped classes are skipped with a warning, not silently dropped.
-
-Expected structure:
-  wildlifemapper/
-    images/
-      train/   val/   test/
-    labels/
-      train/   val/   test/
-    classes.txt   ← MUST verify before training
-
-Pass to merge script as: --wildlifemapper path/to/wildlifemapper
+When access is granted:
+  1. Download and structure as images/train, val, test + labels/
+  2. Check classes.txt and verify IDs in config/merged_classes.yaml
+  3. Re-add "giraffe" and "lion" to unified_classes in merged_classes.yaml
+  4. Update wildlifemapper mapping IDs 2 and 3 (currently mapped to other)
+  5. Re-run merge and retrain
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
- 5. MMLA — Multi-Modal Large Animal Dataset (optional)
+ 5. MMLA — SKIP FOR V1 (not yet publicly available)
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-811K annotations from 37 aerial videos, 6 species.
-Dense video data — merge script subsamples every 10th frame automatically.
+The LILA.science download link is dead — dataset not yet published.
+Do NOT pass --mmla when running merge_datasets.py for v1 training.
 
-Download:
-  https://lila.science/datasets/mmla
-
-After downloading, check classes.txt and update dataset_mappings.mmla
-in config/merged_classes.yaml accordingly (currently empty — needs
-confirmation of class IDs from the actual dataset).
-
-Expected structure:
-  mmla/
-    images/
-      train/   val/   test/
-    labels/
-      train/   val/   test/
-    classes.txt
-
-Pass to merge script as: --mmla path/to/mmla
+Paper: https://arxiv.org/pdf/2504.07744
+  (check here for a data release announcement)
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
  Once all datasets are ready, run:
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-  # Minimum (WAID + AED):
-  python scripts/merge_datasets.py --waid WAID/WAID --aed path/to/AED
-
-  # Full merge:
+  # v1 — WAID + AED + Liege (all freely available):
   python scripts/merge_datasets.py \\
       --waid WAID/WAID \\
       --aed path/to/AED \\
-      --liege path/to/liege \\
-      --wildlifemapper path/to/wildlifemapper \\
-      --mmla path/to/mmla
+      --liege path/to/liege
+
+  # Minimum (WAID + AED only, if Liege not ready):
+  python scripts/merge_datasets.py --waid WAID/WAID --aed path/to/AED
+
+  # Skip --wildlifemapper and --mmla for now — both datasets are unavailable.
 
 Output will be in data/merged/ with a ready-to-use data/merged.yaml.
 """

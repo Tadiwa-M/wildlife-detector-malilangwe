@@ -1,28 +1,28 @@
 # Unified class schema for Phase A+ multi-dataset training.
 # Maps each source dataset's class IDs to the unified Prometheus class IDs.
 #
-# Unified classes (8 total):
+# Unified classes (6 total) — v1 with WAID + AED + Liege:
 #   0: elephant
 #   1: zebra
 #   2: buffalo
 #   3: antelope  (kob, topi, waterbuck, impala, eland, springbok, etc.)
 #   4: cattle
-#   5: giraffe
-#   6: lion
-#   7: other     (sheep, seal, camelus, kiang, warthog, ostrich, etc.)
+#   5: other     (sheep, seal, camelus, kiang, warthog, ostrich, etc.)
 #
-# rhino is excluded from v1 — no confirmed downloadable dataset.
-# Re-add if WildlifeMapper classes.txt confirms a rhino class.
+# giraffe and lion are excluded from v1 — WildlifeMapper (the only source)
+# requires access approval and is not yet downloadable. Re-add both as named
+# classes once a dataset is available. Steps:
+#   1. Add "giraffe" and "lion" to unified_classes below
+#   2. Update wildlifemapper mappings: 2→6 (giraffe), 3→7 (lion)
+#   3. Update other → 8, re-run merge, retrain
 
 unified_classes:
-  - elephant
-  - zebra
-  - buffalo
-  - antelope
-  - cattle
-  - giraffe
-  - lion
-  - other
+  - elephant  # 0
+  - zebra     # 1
+  - buffalo   # 2
+  - antelope  # 3
+  - cattle    # 4
+  - other     # 5
 
 dataset_mappings:
   # WAID (Wildlife Aerial Images from Drone)
@@ -51,23 +51,24 @@ dataset_mappings:
     2: 2   # buffalo   → buffalo
     3: 3   # kob       → antelope
     4: 3   # topi      → antelope
-    5: 7   # warthog   → other
+    5: 5   # warthog   → other
     6: 3   # waterbuck → antelope
 
-  # WildlifeMapper (CVPR 2024)
-  # 20 species from aerial surveys — includes lion, elephant, giraffe, zebra
-  # Source: https://data.4tu.nl/articles/dataset/12713903/1
-  # IMPORTANT: 20-class dataset — verify classes.txt and update all IDs.
-  # Unmapped classes will be skipped with a warning.
+  # WildlifeMapper
+  # Dataset requires access approval — not freely downloadable as of 2025.
+  # GitHub: https://github.com/UCSB-VRL/WildlifeMapper
+  # Mapping kept here for when access is granted. All IDs are approximate —
+  # verify against classes.txt before running merge.
+  # When giraffe/lion are re-added to unified_classes, update IDs 2 and 3
+  # from 5 (other) to the new named class IDs.
   wildlifemapper:
-    0: 0   # elephant      → elephant  (verify ID)
-    1: 1   # zebra         → zebra     (verify ID)
-    2: 5   # giraffe       → giraffe   (verify ID)
-    3: 6   # lion          → lion      (verify ID)
-    4: 2   # buffalo       → buffalo   (verify ID)
-    5: 3   # antelope/impala → antelope (verify ID)
-    # Remaining 14 classes: map to 7 (other) or a named class once classes.txt confirmed
-    # If rhino appears, add it back to unified_classes and re-number other → 8
+    0: 0   # elephant        → elephant
+    1: 1   # zebra           → zebra
+    2: 5   # giraffe         → other (no giraffe class in v1)
+    3: 5   # lion            → other (no lion class in v1)
+    4: 2   # buffalo         → buffalo
+    5: 3   # antelope/impala → antelope
+    # Remaining classes: add mappings here once classes.txt is available
 
   # MMLA (Multi-Modal Large Animal Dataset, 2025)
   # 811K annotations, 37 videos from Ol Pejeta, Mpala, The Wilds
