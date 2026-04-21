@@ -1,20 +1,14 @@
 # Unified class schema for Phase A+ multi-dataset training.
 # Maps each source dataset's class IDs to the unified Prometheus class IDs.
 #
-# Unified classes (6 total) — v1 with WAID + AED + Liege:
+# Unified classes (7 total) — v1: WAID + Liege + Savanna:
 #   0: elephant
 #   1: zebra
 #   2: buffalo
-#   3: antelope  (kob, topi, waterbuck, impala, eland, springbok, etc.)
+#   3: antelope  (kob, topi, waterbuck, Alcelaphinae, impala, etc.)
 #   4: cattle
-#   5: other     (sheep, seal, camelus, kiang, warthog, ostrich, etc.)
-#
-# giraffe and lion are excluded from v1 — WildlifeMapper (the only source)
-# requires access approval and is not yet downloadable. Re-add both as named
-# classes once a dataset is available. Steps:
-#   1. Add "giraffe" and "lion" to unified_classes below
-#   2. Update wildlifemapper mappings: 2→6 (giraffe), 3→7 (lion)
-#   3. Update other → 8, re-run merge, retrain
+#   5: giraffe   (from Savanna dataset)
+#   6: other     (warthog, ostrich, etc.)
 
 unified_classes:
   - elephant  # 0
@@ -22,7 +16,8 @@ unified_classes:
   - buffalo   # 2
   - antelope  # 3
   - cattle    # 4
-  - other     # 5
+  - giraffe   # 5
+  - other     # 6
 
 dataset_mappings:
   # WAID (Wildlife Aerial Images from Drone)
@@ -36,43 +31,40 @@ dataset_mappings:
     4: null  # kiang    → drop (Tibetan wild ass, not African)
     5: 1     # zebra    → zebra
 
-  # AED (Aerial Elephant Dataset)
-  # Original: elephant(0)
+  # AED (Aerial Elephant Dataset) — skipped for v1 (point annotations, no bounding boxes)
   # Source: https://zenodo.org/record/3234780
   aed:
     0: 0   # elephant → elephant
 
   # Liege University African Mammals Dataset
-  # Original: zebra(0), elephant(1), buffalo(2), kob(3), topi(4), warthog(5), waterbuck(6)
+  # Actual COCO category IDs from general_dataset JSON:
+  #   1: Alcelaphinae, 2: Buffalo, 3: Kob, 4: Warthog, 5: Waterbuck, 6: Elephant
+  # Converter (Colab cell) outputs YOLO with unified IDs → identity mapping here.
   # Source: https://dataverse.uliege.be/file.xhtml?fileId=11098
   liege:
-    0: 1   # zebra     → zebra
-    1: 0   # elephant  → elephant
+    0: 0   # elephant  → elephant
     2: 2   # buffalo   → buffalo
-    3: 3   # kob       → antelope
-    4: 3   # topi      → antelope
-    5: 5   # warthog   → other
-    6: 3   # waterbuck → antelope
+    3: 3   # antelope  → antelope
+    6: 6   # other     → other
 
-  # WildlifeMapper
-  # Dataset requires access approval — not freely downloadable as of 2025.
+  # Savanna Wildlife Dataset (Naude & Joubert 2019)
+  # Species: Elephant, Zebra, Giraffe — pre-split train/val/test CSV annotations
+  # Converter (Colab cell) outputs YOLO with unified IDs → identity mapping here.
+  # Source: https://data.4tu.nl/datasets/9b1a2fcb-930e-4cc5-b9f0-a381dd1c7206/1
+  savanna:
+    0: 0   # elephant → elephant
+    1: 1   # zebra    → zebra
+    5: 5   # giraffe  → giraffe
+
+  # WildlifeMapper — access required, not yet downloadable
   # GitHub: https://github.com/UCSB-VRL/WildlifeMapper
-  # Mapping kept here for when access is granted. All IDs are approximate —
-  # verify against classes.txt before running merge.
-  # When giraffe/lion are re-added to unified_classes, update IDs 2 and 3
-  # from 5 (other) to the new named class IDs.
   wildlifemapper:
     0: 0   # elephant        → elephant
     1: 1   # zebra           → zebra
-    2: 5   # giraffe         → other (no giraffe class in v1)
-    3: 5   # lion            → other (no lion class in v1)
+    2: 5   # giraffe         → giraffe
+    3: 6   # lion            → other (no lion class in v1)
     4: 2   # buffalo         → buffalo
     5: 3   # antelope/impala → antelope
-    # Remaining classes: add mappings here once classes.txt is available
 
-  # MMLA (Multi-Modal Large Animal Dataset, 2025)
-  # 811K annotations, 37 videos from Ol Pejeta, Mpala, The Wilds
-  # 6 species: zebra, giraffe, wild dog + others TBC from classes.txt
-  # Source: https://arxiv.org/pdf/2504.07744
-  # Classes TBC — fill in after downloading and checking classes.txt
+  # MMLA — not yet publicly available
   mmla: {}
