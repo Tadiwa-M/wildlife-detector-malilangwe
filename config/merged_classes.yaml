@@ -1,0 +1,53 @@
+# Unified class schema for Phase A+ multi-dataset training.
+# Maps each source dataset's class IDs to the unified Prometheus class IDs.
+#
+# Unified classes (6 total):
+#   0: elephant
+#   1: zebra
+#   2: buffalo
+#   3: antelope  (kob, topi, waterbuck, impala, and similar)
+#   4: cattle
+#   5: other     (sheep, seal, camelus, kiang, warthog, etc.)
+
+unified_classes:
+  - elephant
+  - zebra
+  - buffalo
+  - antelope
+  - cattle
+  - other
+
+dataset_mappings:
+  # WAID (Wildlife Aerial Images from Drone)
+  # Original: sheep(0), cattle(1), seal(2), camelus(3), kiang(4), zebra(5)
+  waid:
+    0: 5   # sheep    → other
+    1: 4   # cattle   → cattle
+    2: 5   # seal     → other (not African)
+    3: 5   # camelus  → other (not African)
+    4: 5   # kiang    → other (not African)
+    5: 1   # zebra    → zebra
+
+  # AED (Aerial Elephant Dataset)
+  # Original: elephant(0)
+  # Source: https://zenodo.org/record/3234780
+  aed:
+    0: 0   # elephant → elephant
+
+  # Liege African Mammals
+  # Original: zebra(0), elephant(1), buffalo(2), kob(3), topi(4), warthog(5), waterbuck(6)
+  # Source: https://lila.science/datasets/
+  liege:
+    0: 1   # zebra     → zebra
+    1: 0   # elephant  → elephant
+    2: 2   # buffalo   → buffalo
+    3: 3   # kob       → antelope
+    4: 3   # topi      → antelope
+    5: 5   # warthog   → other
+    6: 3   # waterbuck → antelope
+
+  # MMLA (Multi-Modal Large Animal dataset)
+  # Classes TBC — confirm by checking classes.txt after downloading.
+  # Script will warn on any unmapped class ID encountered.
+  # Source: https://lila.science/datasets/
+  mmla: {}
