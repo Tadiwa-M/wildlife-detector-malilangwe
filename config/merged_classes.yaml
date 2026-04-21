@@ -1,7 +1,7 @@
 # Unified class schema for Phase A+ multi-dataset training.
 # Maps each source dataset's class IDs to the unified Prometheus class IDs.
 #
-# Unified classes (9 total):
+# Unified classes (8 total):
 #   0: elephant
 #   1: zebra
 #   2: buffalo
@@ -9,8 +9,10 @@
 #   4: cattle
 #   5: giraffe
 #   6: lion
-#   7: rhino
-#   8: other     (sheep, seal, camelus, kiang, warthog, ostrich, etc.)
+#   7: other     (sheep, seal, camelus, kiang, warthog, ostrich, etc.)
+#
+# rhino is excluded from v1 — no confirmed downloadable dataset.
+# Re-add if WildlifeMapper classes.txt confirms a rhino class.
 
 unified_classes:
   - elephant
@@ -20,7 +22,6 @@ unified_classes:
   - cattle
   - giraffe
   - lion
-  - rhino
   - other
 
 dataset_mappings:
@@ -28,11 +29,11 @@ dataset_mappings:
   # Original: sheep(0), cattle(1), seal(2), camelus(3), kiang(4), zebra(5)
   # Source: https://github.com/xiaohuicui/WAID
   waid:
-    0: 8   # sheep    → other
+    0: 7   # sheep    → other
     1: 4   # cattle   → cattle
-    2: 8   # seal     → other (not African)
-    3: 8   # camelus  → other (not African)
-    4: 8   # kiang    → other (not African)
+    2: 7   # seal     → other (not African)
+    3: 7   # camelus  → other (not African)
+    4: 7   # kiang    → other (not African)
     5: 1   # zebra    → zebra
 
   # AED (Aerial Elephant Dataset)
@@ -50,23 +51,8 @@ dataset_mappings:
     2: 2   # buffalo   → buffalo
     3: 3   # kob       → antelope
     4: 3   # topi      → antelope
-    5: 8   # warthog   → other
+    5: 7   # warthog   → other
     6: 3   # waterbuck → antelope
-
-  # Kuzikus/Namibia Dataset
-  # Aerial imagery from Kuzikus Wildlife Reserve, Namibia
-  # Species: rhino, giraffe, eland, ostrich, springbok (+ human/vehicle)
-  # Source: https://peerj.com/articles/13779/
-  # IMPORTANT: Verify class order in classes.txt before training — order
-  # may differ from what's listed here. Update IDs if needed.
-  kuzikus:
-    0: 7   # rhino     → rhino
-    1: 5   # giraffe   → giraffe
-    2: 3   # eland     → antelope
-    3: 8   # ostrich   → other
-    4: 3   # springbok → antelope
-    5: 8   # human     → other (if present)
-    6: 8   # vehicle   → other (if present)
 
   # WildlifeMapper (CVPR 2024)
   # 20 species from aerial surveys — includes lion, elephant, giraffe, zebra
@@ -80,7 +66,8 @@ dataset_mappings:
     3: 6   # lion          → lion      (verify ID)
     4: 2   # buffalo       → buffalo   (verify ID)
     5: 3   # antelope/impala → antelope (verify ID)
-    # Remaining classes default to other — update once classes.txt confirmed
+    # Remaining 14 classes: map to 7 (other) or a named class once classes.txt confirmed
+    # If rhino appears, add it back to unified_classes and re-number other → 8
 
   # MMLA (Multi-Modal Large Animal Dataset, 2025)
   # 811K annotations, 37 videos from Ol Pejeta, Mpala, The Wilds

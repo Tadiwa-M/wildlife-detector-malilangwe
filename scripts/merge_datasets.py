@@ -14,7 +14,6 @@ Usage:
         --waid WAID/WAID \\
         --aed path/to/AED \\
         --liege path/to/liege \\
-        --kuzikus path/to/kuzikus \\
         --wildlifemapper path/to/wildlifemapper \\
         --mmla path/to/mmla
 
@@ -57,7 +56,6 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--waid", type=str, default=None, help="Path to WAID/WAID directory")
     parser.add_argument("--aed", type=str, default=None, help="Path to AED dataset root")
     parser.add_argument("--liege", type=str, default=None, help="Path to Liege dataset root")
-    parser.add_argument("--kuzikus", type=str, default=None, help="Path to Kuzikus/Namibia dataset root (rhino, giraffe)")
     parser.add_argument("--wildlifemapper", type=str, default=None, help="Path to WildlifeMapper dataset root (lion, elephant, 20 species)")
     parser.add_argument("--mmla", type=str, default=None, help="Path to MMLA dataset root")
     parser.add_argument(
@@ -80,7 +78,7 @@ def main() -> None:
     cfg = load_config(args.config)
     setup_logging(cfg)
 
-    if not any([args.waid, args.aed, args.liege, args.kuzikus, args.wildlifemapper, args.mmla]):
+    if not any([args.waid, args.aed, args.liege, args.wildlifemapper, args.mmla]):
         print("No datasets specified. Run with at least --waid.")
         print("For download instructions: python scripts/prepare_datasets.py")
         sys.exit(1)
@@ -146,22 +144,6 @@ def main() -> None:
         )
         total_images += stats["total_images"]
         logger.info("Liege: %d images merged", stats["total_images"])
-
-    # ── Kuzikus/Namibia ──────────────────────────────────────────────────────
-    if args.kuzikus:
-        kuzikus_root = Path(args.kuzikus)
-        if not kuzikus_root.exists():
-            logger.error("Kuzikus path not found: %s", kuzikus_root)
-            sys.exit(1)
-        logger.info("Merging Kuzikus from %s ...", kuzikus_root)
-        stats = merge_dataset(
-            dataset_name="kuzikus",
-            dataset_root=kuzikus_root,
-            mapping=mappings.get("kuzikus", {}),
-            output_dir=output_dir,
-        )
-        total_images += stats["total_images"]
-        logger.info("Kuzikus: %d images merged", stats["total_images"])
 
     # ── WildlifeMapper ────────────────────────────────────────────────────────
     if args.wildlifemapper:
