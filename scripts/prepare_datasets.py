@@ -114,7 +114,57 @@ Update the mapping if the order differs.
 Pass to merge script as: --liege path/to/liege
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
- 4. MMLA — Multi-Modal Large Animal Dataset (optional)
+ 4. Kuzikus/Namibia Dataset — RHINO, giraffe, eland, ostrich, springbok
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Aerial imagery from Kuzikus Wildlife Reserve, Namibia.
+Key species for Prometheus: rhino (black + white), giraffe.
+
+Paper + data: https://peerj.com/articles/13779/
+
+Download the dataset from the paper's supplementary materials or:
+  https://doi.org/10.7717/peerj.13779
+
+IMPORTANT: Check classes.txt after downloading and verify the class
+order matches config/merged_classes.yaml under dataset_mappings.kuzikus.
+The script assumes: rhino=0, giraffe=1, eland=2, ostrich=3, springbok=4.
+Update if the actual order differs.
+
+Expected structure:
+  kuzikus/
+    images/
+      train/   val/   test/
+    labels/
+      train/   val/   test/
+    classes.txt
+
+Pass to merge script as: --kuzikus path/to/kuzikus
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ 5. WildlifeMapper (CVPR 2024) — LION, elephant, giraffe, zebra + 16 more
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+20-species aerial dataset including lion, Masai giraffe, elephant, zebra.
+Key species for Prometheus: lion (only dataset with lion labels).
+
+Download:
+  https://data.4tu.nl/articles/dataset/12713903/1
+
+IMPORTANT: 20-class dataset. After downloading, check classes.txt and
+update ALL 20 class IDs in config/merged_classes.yaml under
+dataset_mappings.wildlifemapper. Currently only the first 6 are mapped —
+unmapped classes are skipped with a warning, not silently dropped.
+
+Expected structure:
+  wildlifemapper/
+    images/
+      train/   val/   test/
+    labels/
+      train/   val/   test/
+    classes.txt   ← MUST verify before training
+
+Pass to merge script as: --wildlifemapper path/to/wildlifemapper
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ 6. MMLA — Multi-Modal Large Animal Dataset (optional)
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 811K annotations from 37 aerial videos, 6 species.
 Dense video data — merge script subsamples every 10th frame automatically.
