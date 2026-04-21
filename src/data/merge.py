@@ -24,11 +24,12 @@ _SPLITS = ("train", "val", "test")
 _IMG_EXTS = {".jpg", ".jpeg", ".png", ".bmp", ".tif", ".tiff"}
 
 
-def load_class_mappings(config_path: str | Path) -> dict[str, dict[int, int]]:
+def load_class_mappings(config_path: str | Path) -> dict[str, dict[int, int | None]]:
     """Load per-dataset class remapping from merged_classes.yaml.
 
     Returns:
         Dict of dataset_name → {src_class_id: unified_class_id}.
+        A value of None means the class is intentionally dropped (no warning).
     """
     path = Path(config_path)
     if not path.exists():
@@ -37,21 +38,26 @@ def load_class_mappings(config_path: str | Path) -> dict[str, dict[int, int]]:
     with open(path, encoding="utf-8") as f:
         cfg = yaml.safe_load(f)
 
-    mappings: dict[str, dict[int, int]] = {}
+    mappings: dict[str, dict[int, int | None]] = {}
     for dataset, raw in cfg.get("dataset_mappings", {}).items():
-        mappings[dataset] = {int(k): int(v) for k, v in (raw or {}).items()}
+        mappings[dataset] = {
+            int(k): (None if v is None else int(v))
+            for k, v in (raw or {}).items()
+        }
     return mappings
 
 
 def remap_label_file(
     src: Path,
     dst: Path,
-    mapping: dict[int, int],
+    mapping: dict[int, int | None],
     dataset_name: str,
 ) -> tuple[int, int]:
     """Read a YOLO label file, remap class IDs, write to dst.
 
-    Lines with unmapped class IDs are skipped with a warning.
+    A mapping value of None means intentional drop (silent).
+    Lines whose class ID is absent from the mapping entirely are skipped
+    with a warning (unexpected / unmapped class).
 
     Returns:
         (kept, skipped) line counts.
@@ -75,7 +81,11 @@ def remap_label_file(
             )
             skipped += 1
             continue
-        parts[0] = str(mapping[src_id])
+        unified_id = mapping[src_id]
+        if unified_id is None:
+            skipped += 1  # intentional drop, no warning
+            continue
+        parts[0] = str(unified_id)
         out_lines.append(" ".join(parts) + "\n")
         kept += 1
 

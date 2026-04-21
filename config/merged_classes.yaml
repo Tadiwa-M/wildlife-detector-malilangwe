@@ -29,12 +29,12 @@ dataset_mappings:
   # Original: sheep(0), cattle(1), seal(2), camelus(3), kiang(4), zebra(5)
   # Source: https://github.com/xiaohuicui/WAID
   waid:
-    0: 7   # sheep    → other
-    1: 4   # cattle   → cattle
-    2: 7   # seal     → other (not African)
-    3: 7   # camelus  → other (not African)
-    4: 7   # kiang    → other (not African)
-    5: 1   # zebra    → zebra
+    0: null  # sheep    → drop (not African / not Malilangwe-relevant)
+    1: 4     # cattle   → cattle
+    2: null  # seal     → drop (not African inland)
+    3: null  # camelus  → drop (not sub-Saharan Africa)
+    4: null  # kiang    → drop (Tibetan wild ass, not African)
+    5: 1     # zebra    → zebra
 
   # AED (Aerial Elephant Dataset)
   # Original: elephant(0)
