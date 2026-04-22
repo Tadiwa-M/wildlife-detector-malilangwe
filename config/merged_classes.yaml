@@ -1,18 +1,17 @@
 # Unified class schema for Phase A+ multi-dataset training.
 # Maps each source dataset's class IDs to the unified Prometheus class IDs.
 #
-# Unified classes (8 total):
+# Unified classes (7 total):
 #   0: elephant
 #   1: zebra
 #   2: buffalo
 #   3: antelope  (kob, topi, waterbuck, impala, eland, springbok, etc.)
 #   4: cattle
 #   5: giraffe
-#   6: lion
-#   7: other     (sheep, seal, camelus, kiang, warthog, ostrich, etc.)
+#   6: other     (sheep, seal, camelus, kiang, warthog, ostrich, lion, etc.)
 #
+# lion is folded into 'other' for v1 — insufficient training data.
 # rhino is excluded from v1 — no confirmed downloadable dataset.
-# Re-add if WildlifeMapper classes.txt confirms a rhino class.
 
 unified_classes:
   - elephant
@@ -21,7 +20,6 @@ unified_classes:
   - antelope
   - cattle
   - giraffe
-  - lion
   - other
 
 dataset_mappings:
@@ -43,16 +41,18 @@ dataset_mappings:
     0: 0   # elephant → elephant
 
   # Liege University African Mammals Dataset
-  # Original: zebra(0), elephant(1), buffalo(2), kob(3), topi(4), warthog(5), waterbuck(6)
+  # NOTE: mega-cell pre-converts COCO→YOLO using unified IDs directly.
+  # So class IDs arriving here are already unified — use identity mapping.
+  # Original COCO: zebra(0), elephant(1), buffalo(2), kob(3), topi(4), warthog(5), waterbuck(6)
+  # After mega-cell conversion: elephant(0), zebra(1), buffalo(2), antelope(3), giraffe(5), other(6)
   # Source: https://dataverse.uliege.be/file.xhtml?fileId=11098
   liege:
-    0: 1   # zebra     → zebra
-    1: 0   # elephant  → elephant
+    0: 0   # elephant  → elephant
+    1: 1   # zebra     → zebra
     2: 2   # buffalo   → buffalo
-    3: 3   # kob       → antelope
-    4: 3   # topi      → antelope
-    5: 7   # warthog   → other
-    6: 3   # waterbuck → antelope
+    3: 3   # antelope  → antelope
+    5: 5   # giraffe   → giraffe
+    6: 6   # other     → other
 
   # WildlifeMapper (CVPR 2024)
   # 20 species from aerial surveys — includes lion, elephant, giraffe, zebra
@@ -60,14 +60,22 @@ dataset_mappings:
   # IMPORTANT: 20-class dataset — verify classes.txt and update all IDs.
   # Unmapped classes will be skipped with a warning.
   wildlifemapper:
-    0: 0   # elephant      → elephant  (verify ID)
-    1: 1   # zebra         → zebra     (verify ID)
-    2: 5   # giraffe       → giraffe   (verify ID)
-    3: 6   # lion          → lion      (verify ID)
-    4: 2   # buffalo       → buffalo   (verify ID)
-    5: 3   # antelope/impala → antelope (verify ID)
-    # Remaining 14 classes: map to 7 (other) or a named class once classes.txt confirmed
-    # If rhino appears, add it back to unified_classes and re-number other → 8
+    0: 0   # elephant        → elephant  (verify ID)
+    1: 1   # zebra           → zebra     (verify ID)
+    2: 5   # giraffe         → giraffe   (verify ID)
+    3: 6   # lion            → other     (folded into other in v1)
+    4: 2   # buffalo         → buffalo   (verify ID)
+    5: 3   # antelope/impala → antelope  (verify ID)
+    # Remaining 14 classes: map to 6 (other) once classes.txt confirmed
+
+  # Savanna / Kenya dataset (data.zip — CSV annotation format, pre-converted to YOLO)
+  # NOTE: mega-cell pre-converts CSV→YOLO using unified IDs directly.
+  # Identity mapping — class IDs arriving here are already unified.
+  # Species present: elephant(0), zebra(1), giraffe(5)
+  savanna:
+    0: 0   # elephant → elephant
+    1: 1   # zebra    → zebra
+    5: 5   # giraffe  → giraffe
 
   # MMLA (Multi-Modal Large Animal Dataset, 2025)
   # 811K annotations, 37 videos from Ol Pejeta, Mpala, The Wilds

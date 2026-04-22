@@ -24,6 +24,21 @@ _SPLITS = ("train", "val", "test")
 _IMG_EXTS = {".jpg", ".jpeg", ".png", ".bmp", ".tif", ".tiff"}
 
 
+def _build_image_index(images_dir: Path) -> dict[str, Path]:
+    """Build a stem→path index for all image files in a directory.
+
+    Handles case-insensitive extensions (e.g. .JPG on Linux) and
+    extension-less files (e.g. SHA1-hash filenames used by the Liege dataset).
+    """
+    index: dict[str, Path] = {}
+    if not images_dir.exists():
+        return index
+    for p in images_dir.iterdir():
+        if p.is_file() and (p.suffix == "" or p.suffix.lower() in _IMG_EXTS):
+            index[p.stem] = p
+    return index
+
+
 def load_class_mappings(config_path: str | Path) -> dict[str, dict[int, int | None]]:
     """Load per-dataset class remapping from merged_classes.yaml.
 
@@ -95,15 +110,6 @@ def remap_label_file(
     return kept, skipped
 
 
-def _find_image(label_path: Path, images_dir: Path) -> Path | None:
-    """Find the image file corresponding to a label file."""
-    for ext in _IMG_EXTS:
-        candidate = images_dir / (label_path.stem + ext)
-        if candidate.exists():
-            return candidate
-    return None
-
-
 def merge_dataset(
     dataset_name: str,
     dataset_root: Path,
@@ -142,6 +148,7 @@ def merge_dataset(
         dst_img_dir.mkdir(parents=True, exist_ok=True)
         dst_lbl_dir.mkdir(parents=True, exist_ok=True)
 
+        img_index = _build_image_index(src_img_dir)
         label_files = sorted(p for p in src_lbl_dir.iterdir() if p.suffix == ".txt")
         copied = skipped_lines = 0
 
@@ -150,7 +157,7 @@ def merge_dataset(
             if i % frame_sample != 0:
                 continue
 
-            img_file = _find_image(lbl_file, src_img_dir)
+            img_file = img_index.get(lbl_file.stem)
             if img_file is None:
                 logger.warning("[%s] No image for label %s", dataset_name, lbl_file.name)
                 continue
